@@ -119,12 +119,12 @@
     <h1>GA4 轉換辨識填寫表</h1>
     <p>FB 與 Google 共用一個頁面。填完當月資料後，直接複製產生的文字，再搭配 GA4 截圖貼給 ChatGPT 即可。</p>
   </div>
-
+<br>
   <div class="tabs">
     <button class="tab active" data-tab="fb" onclick="switchTab('fb')">FB｜受眾 × 素材</button>
     <button class="tab" data-tab="google" onclick="switchTab('google')">Google｜Campaign × 回流</button>
   </div>
-
+<br>
   <!-- FB -->
   <div id="fbPanel" class="panel active fb">
     <section class="card">
@@ -157,7 +157,7 @@
         以「本月執行受眾 × 本月執行素材」交叉比對 GA4 列，只計入同時符合兩者的資料。
       </div>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">02</span>本月執行受眾</h2>
       <table>
@@ -166,7 +166,7 @@
       </table>
       <button class="add" onclick="addFbAudience()">＋ 新增受眾</button>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">03</span>本月執行素材</h2>
       <table>
@@ -175,14 +175,14 @@
       </table>
       <button class="add" onclick="addFbCreative()">＋ 新增素材</button>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">04</span>固定加總欄位</h2>
       <div class="checks">
         <div class="check">login</div><div class="check">二級</div><div class="check">一級</div><div class="check">問卷結果頁</div>
       </div>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">05</span>產生給 ChatGPT 的內容</h2>
       <textarea id="fb_output" readonly></textarea>
@@ -195,7 +195,7 @@
       <div class="footer-note">輸出會要求 ChatGPT：整理整體四項轉換、各受眾 CPA、各素材 CPA，不做額外成效分析。</div>
     </section>
   </div>
-
+<br>
   <!-- GOOGLE -->
   <div id="googlePanel" class="panel google">
     <section class="card">
@@ -225,7 +225,7 @@
         每支本月 Campaign 依自身優化目標計算 CPA：<b>2級 → 花費 ÷ 二級轉換</b>；<b>1級 → 花費 ÷ 一級轉換</b>。
       </div>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">02</span>本月執行 Campaign</h2>
       <table>
@@ -241,7 +241,7 @@
       </table>
       <button class="add" onclick="addGoogleCampaign()">＋ 新增 Campaign</button>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">03</span>固定整理內容</h2>
       <div class="checks">
@@ -249,7 +249,7 @@
         <div class="check">回流｜login</div><div class="check">回流｜二級</div><div class="check">回流｜一級</div><div class="check">回流｜問卷結果頁</div>
       </div>
     </section>
-
+<br>
     <section class="card">
       <h2 class="section-title"><span class="badge">04</span>產生給 ChatGPT 的內容</h2>
       <textarea id="g_output" readonly></textarea>
@@ -263,20 +263,20 @@
     </section>
   </div>
 </div>
-
+<br>
 <script>
 const FB_KEY='ga4_fb_form_v2';
 const G_KEY='ga4_google_form_v2';
-
+<br>
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   fbPanel.classList.toggle('active',tab==='fb');
   googlePanel.classList.toggle('active',tab==='google');
   localStorage.setItem('ga4_active_tab',tab);
 }
-
+<br>
 function esc(v){
-  return String(v??'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  return String(v??'').replaceAll('&','&').replaceAll('"','"').replaceAll('<','<').replaceAll('>','>');
 }
 function money(v){
   if(v==='' || v==null) return '';
@@ -288,7 +288,7 @@ function bindAll(){
     el.onchange=()=>{saveAll();generateFb();generateGoogle();}
   });
 }
-
+<br>
 /* FB */
 function fbRow(type,name='',spend=''){
   const ph=type==='audience'?'例如：CV2_RT_insurance_coverage':'例如：2609_info_rtg';
@@ -322,39 +322,39 @@ function generateFb(){
   fb_output.value =
 `媒體：FB
 月份：${d.month||'？'}
-
+<br>
 【GA4命名規則】
 ${d.naming}
-
+<br>
 【本月執行受眾】
 ${aNames}
-
+<br>
 【本月執行受眾的花費】
 ${aSpend}
-
+<br>
 【本月執行素材】
 ${cNames}
-
+<br>
 【本月執行素材的花費】
 ${cSpend}
-
+<br>
 【CPA計算基準／優化目標】
 ${d.goal}
-
+<br>
 【需要加總欄位】
 ${d.fields.join('、')}
-
+<br>
 請搭配我上傳的 GA4 截圖，依「本月執行受眾 × 本月執行素材」交叉比對：
 1. 加總本月 login、二級、一級、問卷結果頁。
 2. 計算各受眾的 ${d.goal} 轉換數與 CPA。
 3. 計算各素材的 ${d.goal} 轉換數與 CPA。
 4. 不要做額外成效分析。`;
 }
-
+<br>
 /* GOOGLE */
 function gRow(name='',goal='2級',spend=''){
   return `<tr>
-    <td><input class="g-name" placeholder="例如：2609_保險視圖_...（2級）" value="${esc(name)}"></td>
+    <td><input class="g-name" placeholder="例如：2609_保險視圖\_...（2級）" value="${esc(name)}"></td>
     <td><select class="g-goal">
       <option value="2級" ${goal==='2級'?'selected':''}>2級</option>
       <option value="1級" ${goal==='1級'?'selected':''}>1級</option>
@@ -384,22 +384,22 @@ function generateGoogle(){
 `媒體：Google
 月份：${d.monthLabel||'？'}
 當月月份碼：${d.monthCode||'？'}
-
+<br>
 【本月執行 Campaign】
 ${rows}
-
+<br>
 【需要加總欄位】
 ${d.fields.join('、')}
-
+<br>
 請搭配我上傳的 GA4 截圖整理：
-1. GA4 中以「${d.monthCode||'當月月份碼'}_」開頭的 Campaign 全部視為本月，其餘月份的 Campaign 全部歸類為「回流」。
+1. GA4 中以「${d.monthCode||'當月月份碼'}\_」開頭的 Campaign 全部視為本月，其餘月份的 Campaign 全部歸類為「回流」。
 2. 每支本月 Campaign 都列出 login、二級、一級、問卷結果頁。
 3. 2級 Campaign：CPA＝花費 ÷ 二級轉換。
 4. 1級 Campaign：CPA＝花費 ÷ 一級轉換。
 5. 回流請將所有非本月 Campaign 的 login、二級、一級、問卷結果頁分別加總。
 6. 不要做額外成效分析。`;
 }
-
+<br>
 /* Storage / export */
 function saveAll(){
   try{
@@ -427,7 +427,7 @@ function loadAll(){
   }
   if(!fbAudienceBody.children.length) addFbAudience();
   if(!fbCreativeBody.children.length) addFbCreative();
-
+<br>
   const g=localStorage.getItem(G_KEY);
   if(g){
     try{
@@ -452,7 +452,7 @@ function exportData(type){
   const d=type==='fb'?fbData():googleData();
   const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=type==='fb'?`FB_GA4_${d.month||'本月'}.json`:`Google_GA4_${d.monthCode||'本月'}.json`;
+  a.download=type==='fb'?`FB_GA4\_${d.month||'本月'}.json`:`Google_GA4\_${d.monthCode||'本月'}.json`;
   a.click();URL.revokeObjectURL(a.href);
 }
 function clearFb(){
@@ -466,7 +466,7 @@ function clearGoogle(){
   localStorage.removeItem(G_KEY);g_monthcode.value='';g_monthlabel.value='';gCampaignBody.innerHTML='';
   addGoogleCampaign('','2級','');addGoogleCampaign('','1級','');generateGoogle();saveAll();
 }
-
+<br>
 loadAll();
 </script>
 </body>
