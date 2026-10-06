@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GA4 轉換辨識填寫表｜FB & Google</title>
+<style>
+  :root{
+    --green:#2f6b4f;
+    --green2:#eaf3ed;
+    --green3:#d7e7dc;
+    --blue:#3b65a7;
+    --blue2:#edf3fb;
+    --blue3:#d7e4f7;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --line:#d1d5db;
+    --bg:#f6f8f7;
+    --white:#fff;
+    --danger:#b91c1c;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:1160px;margin:28px auto;padding:0 20px 48px}
+  .hero{
+    background:linear-gradient(135deg,#244f3c,#3f7f61);
+    color:#fff;border-radius:18px;padding:28px 30px;
+    box-shadow:0 10px 28px rgba(34,74,55,.14);
+  }
+  .hero h1{margin:0 0 8px;font-size:28px}
+  .hero p{margin:0;opacity:.9;font-size:14px;line-height:1.6}
+  .tabs{
+    display:flex;gap:8px;margin-top:18px;background:#e9eeeb;padding:6px;border-radius:14px;
+  }
+  .tab{
+    flex:1;border:0;background:transparent;color:#51615a;font-weight:800;
+    padding:12px 14px;border-radius:10px;cursor:pointer;font-size:15px;
+  }
+  .tab.active[data-tab="fb"]{background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .tab.active[data-tab="google"]{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .panel{display:none}
+  .panel.active{display:block}
+  .card{
+    background:#fff;border:1px solid #e5e7eb;border-radius:16px;
+    margin-top:16px;padding:22px;box-shadow:0 4px 14px rgba(0,0,0,.035)
+  }
+  .section-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;margin:0 0 16px}
+  .badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:28px;height:28px;padding:0 9px;border-radius:999px;font-size:13px;font-weight:800
+  }
+  .fb .badge{background:var(--green2);color:var(--green)}
+  .google .badge{background:var(--blue2);color:var(--blue)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+  input,select{
+    width:100%;height:42px;border:1px solid var(--line);border-radius:10px;
+    padding:0 12px;font-size:14px;outline:none;background:#fff
+  }
+  .fb input:focus,.fb select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(47,107,79,.08)}
+  .google input:focus,.google select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,101,167,.08)}
+  .hint{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.5}
+  table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden}
+  th,td{border-bottom:1px solid #e5e7eb;padding:10px;text-align:left;vertical-align:middle}
+  th{font-size:13px}
+  .fb th{background:var(--green2);color:#274c3b}
+  .google th{background:var(--blue2);color:#2d4f80}
+  td input, td select{height:38px}
+  .remove{border:0;background:transparent;color:var(--danger);cursor:pointer;font-weight:800}
+  .add{
+    margin-top:12px;background:#fff;border-radius:10px;padding:9px 13px;
+    cursor:pointer;font-weight:800
+  }
+  .fb .add{border:1px dashed var(--green);color:var(--green)}
+  .google .add{border:1px dashed var(--blue);color:var(--blue)}
+  .checks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .check{border-radius:12px;padding:12px 14px;font-weight:800;text-align:center}
+  .fb .check{background:var(--green2);border:1px solid var(--green3)}
+  .google .check{background:var(--blue2);border:1px solid var(--blue3)}
+  textarea{
+    width:100%;min-height:310px;border:1px solid var(--line);border-radius:12px;
+    padding:14px;resize:vertical;font-size:14px;line-height:1.6;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#fbfbfb
+  }
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .btn{border:0;border-radius:10px;padding:10px 15px;font-weight:800;cursor:pointer}
+  .fb .primary{background:var(--green);color:#fff}
+  .google .primary{background:var(--blue);color:#fff}
+  .secondary{background:#edf2ef;color:#3f5549}
+  .ghost{background:#fff;color:var(--muted);border:1px solid var(--line)}
+  .footer-note{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6}
+  .rulebox{
+    border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.7;margin-top:12px
+  }
+  .fb .rulebox{background:#f5faf7;border:1px solid var(--green3)}
+  .google .rulebox{background:#f6f9fe;border:1px solid var(--blue3)}
+  .pill{
+    display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:800;margin-right:6px
+  }
+  .fb .pill{background:var(--green2);color:var(--green)}
+  .google .pill{background:var(--blue2);color:var(--blue)}
+  @media(max-width:760px){
+    .grid{grid-template-columns:1fr}
+    .checks{grid-template-columns:repeat(2,1fr)}
+    .tabs{flex-direction:column}
+    .wrap{padding:0 12px 30px}
+    th,td{padding:8px 6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>GA4 轉換辨識填寫表</h1>
+    <p>FB 與 Google 共用一個頁面。填完當月資料後，直接複製產生的文字，再搭配 GA4 截圖貼給 ChatGPT 即可。</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="fb" onclick="switchTab('fb')">FB｜受眾 × 素材</button>
+    <button class="tab" data-tab="google" onclick="switchTab('google')">Google｜Campaign × 回流</button>
+  </div>
+
+  <!-- FB -->
+  <div id="fbPanel" class="panel active fb">
+    <section class="card">
+      <h2 class="section-title"><span class="badge">01</span>基本設定</h2>
+      <div class="grid">
+        <div>
+          <label>媒體</label>
+          <input id="fb_media" value="FB" readonly />
+        </div>
+        <div>
+          <label>月份</label>
+          <input id="fb_month" placeholder="例如：2026/09 或 9月" />
+        </div>
+        <div>
+          <label>GA4 命名規則</label>
+          <input id="fb_naming" value="CV2＿受眾名稱＿素材名稱" />
+        </div>
+        <div>
+          <label>CPA 計算基準／優化目標</label>
+          <select id="fb_goal">
+            <option value="二級" selected>二級</option>
+            <option value="login">login</option>
+            <option value="一級">一級</option>
+            <option value="問卷結果頁">問卷結果頁</option>
+          </select>
+        </div>
+      </div>
+      <div class="rulebox">
+        <span class="pill">辨識規則</span>
+        以「本月執行受眾 × 本月執行素材」交叉比對 GA4 列，只計入同時符合兩者的資料。
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">02</span>本月執行受眾</h2>
+      <table>
+        <thead><tr><th>受眾名稱</th><th style="width:180px">花費</th><th style="width:60px"></th></tr></thead>
+        <tbody id="fbAudienceBody"></tbody>
+      </table>
+      <button class="add" onclick="addFbAudience()">＋ 新增受眾</button>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">03</span>本月執行素材</h2>
+      <table>
+        <thead><tr><th>素材名稱</th><th style="width:180px">花費</th><th style="width:60px"></th></tr></thead>
+        <tbody id="fbCreativeBody"></tbody>
+      </table>
+      <button class="add" onclick="addFbCreative()">＋ 新增素材</button>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">04</span>固定加總欄位</h2>
+      <div class="checks">
+        <div class="check">login</div><div class="check">二級</div><div class="check">一級</div><div class="check">問卷結果頁</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">05</span>產生給 ChatGPT 的內容</h2>
+      <textarea id="fb_output" readonly></textarea>
+      <div class="actions">
+        <button class="btn primary" onclick="generateFb()">產生整理文字</button>
+        <button class="btn secondary" onclick="copyOutput('fb_output', this)">複製文字</button>
+        <button class="btn secondary" onclick="exportData('fb')">匯出 JSON</button>
+        <button class="btn ghost" onclick="clearFb()">清空本月資料</button>
+      </div>
+      <div class="footer-note">輸出會要求 ChatGPT：整理整體四項轉換、各受眾 CPA、各素材 CPA，不做額外成效分析。</div>
+    </section>
+  </div>
+
+  <!-- GOOGLE -->
+  <div id="googlePanel" class="panel google">
+    <section class="card">
+      <h2 class="section-title"><span class="badge">01</span>基本設定</h2>
+      <div class="grid">
+        <div>
+          <label>媒體</label>
+          <input id="g_media" value="Google" readonly />
+        </div>
+        <div>
+          <label>當月月份碼</label>
+          <input id="g_monthcode" placeholder="例如：2609" />
+          <div class="hint">只要填月份碼即可；GA4 中其他月份碼的 Campaign 會歸類為「回流」。</div>
+        </div>
+        <div>
+          <label>月份顯示</label>
+          <input id="g_monthlabel" placeholder="例如：2026/09 或 9月" />
+        </div>
+        <div>
+          <label>固定加總欄位</label>
+          <input value="login、二級、一級、問卷結果頁" readonly />
+        </div>
+      </div>
+      <div class="rulebox">
+        <span class="pill">辨識規則</span>
+        GA4 中以當月月份碼開頭的 Campaign 視為「本月」；其餘月份 Campaign 全部歸類為「回流」。
+        每支本月 Campaign 依自身優化目標計算 CPA：<b>2級 → 花費 ÷ 二級轉換</b>；<b>1級 → 花費 ÷ 一級轉換</b>。
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">02</span>本月執行 Campaign</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Campaign 名稱</th>
+            <th style="width:150px">優化目標</th>
+            <th style="width:180px">花費</th>
+            <th style="width:60px"></th>
+          </tr>
+        </thead>
+        <tbody id="gCampaignBody"></tbody>
+      </table>
+      <button class="add" onclick="addGoogleCampaign()">＋ 新增 Campaign</button>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">03</span>固定整理內容</h2>
+      <div class="checks">
+        <div class="check">本月｜login</div><div class="check">本月｜二級</div><div class="check">本月｜一級</div><div class="check">本月｜問卷結果頁</div>
+        <div class="check">回流｜login</div><div class="check">回流｜二級</div><div class="check">回流｜一級</div><div class="check">回流｜問卷結果頁</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title"><span class="badge">04</span>產生給 ChatGPT 的內容</h2>
+      <textarea id="g_output" readonly></textarea>
+      <div class="actions">
+        <button class="btn primary" onclick="generateGoogle()">產生整理文字</button>
+        <button class="btn secondary" onclick="copyOutput('g_output', this)">複製文字</button>
+        <button class="btn secondary" onclick="exportData('google')">匯出 JSON</button>
+        <button class="btn ghost" onclick="clearGoogle()">清空本月資料</button>
+      </div>
+      <div class="footer-note">輸出會要求 ChatGPT：逐支整理本月 Campaign 的四項轉換與 CPA，並加總所有非本月 Campaign 為回流。</div>
+    </section>
+  </div>
+</div>
+
+<script>
+const FB_KEY='ga4_fb_form_v2';
+const G_KEY='ga4_google_form_v2';
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  fbPanel.classList.toggle('active',tab==='fb');
+  googlePanel.classList.toggle('active',tab==='google');
+  localStorage.setItem('ga4_active_tab',tab);
+}
+
+function esc(v){
+  return String(v??'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+}
+function money(v){
+  if(v==='' || v==null) return '';
+  const n=Number(v); return Number.isFinite(n)?'$'+n.toLocaleString():v;
+}
+function bindAll(){
+  document.querySelectorAll('input,select').forEach(el=>{
+    el.oninput=()=>{saveAll();generateFb();generateGoogle();}
+    el.onchange=()=>{saveAll();generateFb();generateGoogle();}
+  });
+}
+
+/* FB */
+function fbRow(type,name='',spend=''){
+  const ph=type==='audience'?'例如：CV2_RT_insurance_coverage':'例如：2609_info_rtg';
+  return `<tr>
+    <td><input class="fb-${type}-name" placeholder="${ph}" value="${esc(name)}"></td>
+    <td><input class="fb-${type}-spend" type="number" min="0" step="1" placeholder="0" value="${esc(spend)}"></td>
+    <td><button class="remove" onclick="this.closest('tr').remove();saveAll();generateFb()">刪除</button></td>
+  </tr>`;
+}
+function addFbAudience(name='',spend=''){fbAudienceBody.insertAdjacentHTML('beforeend',fbRow('audience',name,spend));bindAll()}
+function addFbCreative(name='',spend=''){fbCreativeBody.insertAdjacentHTML('beforeend',fbRow('creative',name,spend));bindAll()}
+function collectFb(type){
+  return [...document.querySelectorAll(`#fb${type[0].toUpperCase()+type.slice(1)}Body tr`)].map(tr=>({
+    name:tr.querySelector(`.fb-${type}-name`).value.trim(),
+    spend:tr.querySelector(`.fb-${type}-spend`).value.trim()
+  })).filter(x=>x.name)
+}
+function fbData(){
+  return {
+    media:'FB',month:fb_month.value.trim(),naming:fb_naming.value.trim(),
+    goal:fb_goal.value,audiences:collectFb('audience'),creatives:collectFb('creative'),
+    fields:['login','二級','一級','問卷結果頁']
+  }
+}
+function generateFb(){
+  const d=fbData();
+  const aNames=d.audiences.map(x=>x.name).join('、');
+  const cNames=d.creatives.map(x=>x.name).join('、');
+  const aSpend=d.audiences.map(x=>`${x.name}：${money(x.spend)}`).join('\n');
+  const cSpend=d.creatives.map(x=>`${x.name}：${money(x.spend)}`).join('\n');
+  fb_output.value =
+`媒體：FB
+月份：${d.month||'？'}
+
+【GA4命名規則】
+${d.naming}
+
+【本月執行受眾】
+${aNames}
+
+【本月執行受眾的花費】
+${aSpend}
+
+【本月執行素材】
+${cNames}
+
+【本月執行素材的花費】
+${cSpend}
+
+【CPA計算基準／優化目標】
+${d.goal}
+
+【需要加總欄位】
+${d.fields.join('、')}
+
+請搭配我上傳的 GA4 截圖，依「本月執行受眾 × 本月執行素材」交叉比對：
+1. 加總本月 login、二級、一級、問卷結果頁。
+2. 計算各受眾的 ${d.goal} 轉換數與 CPA。
+3. 計算各素材的 ${d.goal} 轉換數與 CPA。
+4. 不要做額外成效分析。`;
+}
+
+/* GOOGLE */
+function gRow(name='',goal='2級',spend=''){
+  return `<tr>
+    <td><input class="g-name" placeholder="例如：2609_保險視圖_...（2級）" value="${esc(name)}"></td>
+    <td><select class="g-goal">
+      <option value="2級" ${goal==='2級'?'selected':''}>2級</option>
+      <option value="1級" ${goal==='1級'?'selected':''}>1級</option>
+    </select></td>
+    <td><input class="g-spend" type="number" min="0" step="1" placeholder="0" value="${esc(spend)}"></td>
+    <td><button class="remove" onclick="this.closest('tr').remove();saveAll();generateGoogle()">刪除</button></td>
+  </tr>`;
+}
+function addGoogleCampaign(name='',goal='2級',spend=''){gCampaignBody.insertAdjacentHTML('beforeend',gRow(name,goal,spend));bindAll()}
+function googleCampaigns(){
+  return [...document.querySelectorAll('#gCampaignBody tr')].map(tr=>({
+    name:tr.querySelector('.g-name').value.trim(),
+    goal:tr.querySelector('.g-goal').value,
+    spend:tr.querySelector('.g-spend').value.trim()
+  })).filter(x=>x.name)
+}
+function googleData(){
+  return {
+    media:'Google',monthCode:g_monthcode.value.trim(),monthLabel:g_monthlabel.value.trim(),
+    campaigns:googleCampaigns(),fields:['login','二級','一級','問卷結果頁']
+  }
+}
+function generateGoogle(){
+  const d=googleData();
+  const rows=d.campaigns.map(x=>`${x.name}｜優化目標：${x.goal}｜花費：${money(x.spend)}`).join('\n');
+  g_output.value =
+`媒體：Google
+月份：${d.monthLabel||'？'}
+當月月份碼：${d.monthCode||'？'}
+
+【本月執行 Campaign】
+${rows}
+
+【需要加總欄位】
+${d.fields.join('、')}
+
+請搭配我上傳的 GA4 截圖整理：
+1. GA4 中以「${d.monthCode||'當月月份碼'}_」開頭的 Campaign 全部視為本月，其餘月份的 Campaign 全部歸類為「回流」。
+2. 每支本月 Campaign 都列出 login、二級、一級、問卷結果頁。
+3. 2級 Campaign：CPA＝花費 ÷ 二級轉換。
+4. 1級 Campaign：CPA＝花費 ÷ 一級轉換。
+5. 回流請將所有非本月 Campaign 的 login、二級、一級、問卷結果頁分別加總。
+6. 不要做額外成效分析。`;
+}
+
+/* Storage / export */
+function saveAll(){
+  try{
+    localStorage.setItem(FB_KEY,JSON.stringify(fbData()));
+    localStorage.setItem(G_KEY,JSON.stringify(googleData()));
+  }catch(e){}
+}
+function loadAll(){
+  const fb=localStorage.getItem(FB_KEY);
+  if(fb){
+    try{
+      const d=JSON.parse(fb);
+      fb_month.value=d.month||''; fb_naming.value=d.naming||'CV2＿受眾名稱＿素材名稱'; fb_goal.value=d.goal||'二級';
+      (d.audiences||[]).forEach(x=>addFbAudience(x.name,x.spend));
+      (d.creatives||[]).forEach(x=>addFbCreative(x.name,x.spend));
+    }catch(e){}
+  } else {
+    addFbAudience('CV2_RT_view_products','');
+    addFbAudience('CV2_RT_sharon_video','');
+    addFbAudience('CV2_RT_insurance_coverage','');
+    addFbCreative('2607_official_rtg','');
+    addFbCreative('2607_login_rtg','');
+    addFbCreative('2607_app_rtg','');
+    addFbCreative('2604_asset_coverage','');
+  }
+  if(!fbAudienceBody.children.length) addFbAudience();
+  if(!fbCreativeBody.children.length) addFbCreative();
+
+  const g=localStorage.getItem(G_KEY);
+  if(g){
+    try{
+      const d=JSON.parse(g);
+      g_monthcode.value=d.monthCode||''; g_monthlabel.value=d.monthLabel||'';
+      (d.campaigns||[]).forEach(x=>addGoogleCampaign(x.name,x.goal,x.spend));
+    }catch(e){}
+  } else {
+    addGoogleCampaign('','2級','');
+    addGoogleCampaign('','1級','');
+  }
+  if(!gCampaignBody.children.length){addGoogleCampaign('','2級','');addGoogleCampaign('','1級','')}
+  const t=localStorage.getItem('ga4_active_tab')||'fb'; switchTab(t);
+  bindAll();generateFb();generateGoogle();
+}
+async function copyOutput(id,btn){
+  const el=document.getElementById(id);
+  await navigator.clipboard.writeText(el.value);
+  const old=btn.textContent;btn.textContent='已複製 ✓';setTimeout(()=>btn.textContent=old,1200);
+}
+function exportData(type){
+  const d=type==='fb'?fbData():googleData();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=type==='fb'?`FB_GA4_${d.month||'本月'}.json`:`Google_GA4_${d.monthCode||'本月'}.json`;
+  a.click();URL.revokeObjectURL(a.href);
+}
+function clearFb(){
+  if(!confirm('要清空 FB 本月資料嗎？')) return;
+  localStorage.removeItem(FB_KEY);fb_month.value='';fbAudienceBody.innerHTML='';fbCreativeBody.innerHTML='';
+  addFbAudience();addFbAudience();addFbAudience();addFbCreative();addFbCreative();addFbCreative();addFbCreative();
+  generateFb();saveAll();
+}
+function clearGoogle(){
+  if(!confirm('要清空 Google 本月資料嗎？')) return;
+  localStorage.removeItem(G_KEY);g_monthcode.value='';g_monthlabel.value='';gCampaignBody.innerHTML='';
+  addGoogleCampaign('','2級','');addGoogleCampaign('','1級','');generateGoogle();saveAll();
+}
+
+loadAll();
+</script>
+</body>
+</html>
